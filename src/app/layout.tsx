@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { serif, sans } from "@/styles/fonts";
 import { WhatsAppButton } from "@/components/layout/WhatsAppButton";
+// @ts-ignore
 import "./globals.css";
 
 export const metadata: Metadata = {
