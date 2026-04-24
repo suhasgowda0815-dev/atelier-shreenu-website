@@ -7,7 +7,7 @@ export const site = {
   founders: "Ranjeet & Shreenu Mukherjee",
 
   contact: {
-    email: "thevrindavanproject@gmail.com", // keeping email same as per brief
+    email: "info@ateliershreenu.com", // keeping email same as per brief
     phone: "+91 95601 07193",
     phoneIntl: "919560107193",
     whatsapp: "919560107193",
