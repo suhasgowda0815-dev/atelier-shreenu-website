@@ -1,9 +1,40 @@
+"use client";
+
+import { useState } from "react";
 import { Container } from "@/components/ui/Container";
 import { FadeIn } from "@/components/ui/FadeIn";
 import { SectionLabel } from "@/components/ui/SectionHeading";
 import { site } from "@/content/site";
 
+type SubmitStatus = "idle" | "submitting" | "success" | "error";
+
 export function Contact() {
+  const [status, setStatus] = useState<SubmitStatus>("idle");
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const formData = new FormData(form);
+    const body = new URLSearchParams();
+    formData.forEach((value, key) => body.append(key, typeof value === "string" ? value : ""));
+
+    setStatus("submitting");
+    try {
+      const response = await fetch("/__forms.html", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: body.toString(),
+      });
+
+      if (!response.ok) throw new Error(`Submission failed: ${response.status}`);
+
+      form.reset();
+      setStatus("success");
+    } catch {
+      setStatus("error");
+    }
+  };
+
   return (
     <section id="contact" className="relative overflow-hidden bg-ink py-24 text-bone md:py-36">
       {/* Background image with heavy dark overlay */}
@@ -102,6 +133,7 @@ export function Contact() {
               method="POST"
               data-netlify="true"
               netlify-honeypot="bot-field"
+              onSubmit={handleSubmit}
               className="space-y-8"
             >
               {/* Netlify form fields */}
@@ -173,10 +205,26 @@ export function Contact() {
 
               <button
                 type="submit"
-                className="text-micro mt-4 inline-flex items-center border border-bone/60 px-8 py-4 transition-colors hover:bg-bone hover:text-ink"
+                disabled={status === "submitting"}
+                className="text-micro mt-4 inline-flex items-center border border-bone/60 px-8 py-4 transition-colors hover:bg-bone hover:text-ink disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:bg-transparent disabled:hover:text-bone"
               >
-                Send enquiry
+                {status === "submitting" ? "Sending…" : "Send enquiry"}
               </button>
+
+              {status === "success" && (
+                <p role="status" className="text-sm text-bone/80">
+                  Thank you — your enquiry has been received. We&apos;ll reply personally.
+                </p>
+              )}
+              {status === "error" && (
+                <p role="alert" className="text-sm text-terracotta">
+                  Something went wrong sending your enquiry. Please email us directly at{" "}
+                  <a href={`mailto:${site.contact.email}`} className="underline">
+                    {site.contact.email}
+                  </a>
+                  .
+                </p>
+              )}
             </form>
           </FadeIn>
         </div>
